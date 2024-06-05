@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Slide Show</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .slide {
+            display: none;
+            text-align: center;
+            font-size: 2em;
+            padding: 0;
+            border: 1px solid #000;
+            width: 100%; /* 슬라이드 너비 설정 */
+            max-width: 1920px;
+            height: auto;
+            aspect-ratio: 16 / 9; /* 16:9 비율 설정 */
+            box-sizing: border-box;
+        }
+        .visible {
+            display: block;
+        }
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* 이미지가 컨테이너에 맞게 조정됨 */
+        }
+    </style>
+</head>
+<body>
+    <div id="main" class="slide visible"><img src="images/slide1.png" alt="Main Slide"></div>
+    <div id="slide2" class="slide"><img src="images/slide2.png" alt="Slide 2"></div>
+    <div id="slide3" class="slide"><img src="images/slide3.png" alt="Slide 3"></div>
+    <div id="slide4" class="slide"><img src="images/slide4.png" alt="Slide 4"></div>
+    <div id="slide5" class="slide"><img src="images/slide5.png" alt="Slide 5"></div>
+    <div id="slide6" class="slide"><img src="images/slide6.png" alt="Slide 6"></div>
+    <div id="endSlide" class="slide"><img src="images/end.png" alt="End Slide"></div>
+
+    <button id="nextButton" onclick="playAndShowRandomSlide()">Next Slide</button>
+
+    <audio id="audio" src="audio/soundfile.mp3"></audio>
+
+    <script>
+        let slides = ["slide2", "slide3", "slide4", "slide5", "slide6"];
+        let shownSlides = new Set();
+
+        function playAndShowRandomSlide() {
+            let button = document.getElementById("nextButton");
+
+            // Play sound
+            let audio = document.getElementById("audio");
+            audio.play();
+
+            // Wait for the sound to finish (5 seconds)
+            setTimeout(() => {
+                // Hide all slides
+                slides.forEach(slideId => {
+                    document.getElementById(slideId).classList.remove("visible");
+                });
+
+                // Hide main slide
+                document.getElementById("main").classList.remove("visible");
+
+                // Filter out already shown slides
+                let remainingSlides = slides.filter(slideId => !shownSlides.has(slideId));
+
+                // If no slides are left, show the end slide
+                if (remainingSlides.length === 0) {
+                    document.getElementById("endSlide").classList.add("visible");
+                    button.innerText = "END";
+                    button.onclick = null;
+                    return;
+                }
+
+                // Select a random slide
+                let randomIndex = Math.floor(Math.random() * remainingSlides.length);
+                let selectedSlide = remainingSlides[randomIndex];
+
+                // Show the selected slide
+                document.getElementById(selectedSlide).classList.add("visible");
+
+                // Mark the slide as shown
+                shownSlides.add(selectedSlide);
+
+                // Check if all slides have been shown
+                if (shownSlides.size === slides.length) {
+                    button.innerText = "END";
+                    button.onclick = () => {
+                        // Hide all slides and show the end slide
+                        slides.forEach(slideId => {
+                            document.getElementById(slideId).classList.remove("visible");
+                        });
+                        document.getElementById("endSlide").classList.add("visible");
+                        button.onclick = null; // Disable the button after showing the end slide
+                    };
+                }
+            }, 5000); // 5000 milliseconds = 5 seconds
+        }
+    </script>
+</body>
+</html>
